@@ -13,8 +13,6 @@ def get_imoveis():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM imoveis")
     rows = cursor.fetchall()
-    conn.close()
-
 
     imoveis = [
         {
@@ -38,7 +36,6 @@ def get_imoveis_id(id):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM imoveis WHERE id = ?", (id,))
     row = cursor.fetchone()
-    conn.close()
     if row is None:
         return jsonify({"error": "Imóvel não encontrado"}), 404
 
@@ -58,9 +55,9 @@ def get_imoveis_id(id):
 
 @app.route("/imoveis", methods=["POST"])
 def add_imoveis():
-    data = request.json 
+    dados = request.json 
     required_fields = ["logradouro", "tipo_logradouro", "bairro", "cidade", "cep", "tipo", "valor", "data_aquisicao"]
-    if not all(field in data for field in required_fields):
+    if not all(field in dados for field in required_fields):
         return jsonify({"error": "Campos obrigatórios ausentes"}), 400
 
     try:
@@ -68,10 +65,8 @@ def add_imoveis():
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (data["logradouro"], data["tipo_logradouro"], data["bairro"], data["cidade"], data["cep"], data["tipo"], data["valor"], data["data_aquisicao"])
+            (dados["logradouro"], dados["tipo_logradouro"], dados["bairro"], dados["cidade"], dados["cep"], dados["tipo"], dados["valor"], dados["data_aquisicao"])
         )
-        conn.commit()
-        conn.close()
         return jsonify({"message": "Imóvel adicionado com sucesso!"}), 201
 
     except Exception as e:
@@ -79,7 +74,7 @@ def add_imoveis():
 
 @app.route("/imoveis/<int:id>/update", methods=["PUT"])
 def update_imoveis(id):
-    data = request.json
+    dados = request.json
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute(
@@ -89,21 +84,19 @@ def update_imoveis(id):
         WHERE id = ?
         """,
         (
-            data["logradouro"],
-            data["tipo_logradouro"],
-            data["bairro"],
-            data["cidade"],
-            data["cep"],
-            data["tipo"],
-            data["valor"],
-            data["data_aquisicao"],
+            dados["logradouro"],
+            dados["tipo_logradouro"],
+            dados["bairro"],
+            dados["cidade"],
+            dados["cep"],
+            dados["tipo"],
+            dados["valor"],
+            dados["data_aquisicao"],
             id,
         ),
     )
-    conn.commit()
     cursor.execute("SELECT * FROM imoveis WHERE id = ?", (id,))
     row = cursor.fetchone()
-    conn.close()
     if row is None:
         return jsonify({"error": "Imóvel não encontrado"}), 404
     
@@ -133,7 +126,6 @@ def delete_imoveis(id):
             return jsonify({"error": "Imóvel não encontrado"}), 404
 
         cursor.execute("DELETE FROM imoveis WHERE id = ?", (id,))
-        conn.commit()
 
     return jsonify({"message": "Imóvel deletado com sucesso!"}), 200
 
@@ -183,9 +175,7 @@ def get_imoveis_cidade(cidade):
                 "data_aquisicao": row[8]
             }
         )
-
     return jsonify({"imoveis": imoveis})
-
 
 
 if __name__ == "__main__":
