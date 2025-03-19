@@ -92,7 +92,7 @@ def add_imoveis():
 
 @app.route("/imoveis/<int:id>/update", methods=["PUT"])
 def update_imoveis(id):
-    data = request.json
+    dados = request.json
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute(
@@ -102,21 +102,20 @@ def update_imoveis(id):
         WHERE id = %s
         """,
         (
-            data["logradouro"],
-            data["tipo_logradouro"],
-            data["bairro"],
-            data["cidade"],
-            data["cep"],
-            data["tipo"],
-            data["valor"],
-            data["data_aquisicao"],
+            dados["logradouro"],
+            dados["tipo_logradouro"],
+            dados["bairro"],
+            dados["cidade"],
+            dados["cep"],
+            dados["tipo"],
+            dados["valor"],
+            dados["data_aquisicao"],
             id,
         ),
     )
     conn.commit()
     cursor.execute(f"SELECT * FROM imoveis WHERE id = %s", (id,))
     row = cursor.fetchone()
-    conn.close()
     if row is None:
         return jsonify({"error": "Imóvel não encontrado"}), 404
     
@@ -201,7 +200,6 @@ def get_imoveis_cidade(cidade):
             })
 
     return jsonify({"imoveis": imoveis_final})
-
 
 
 if __name__ == "__main__":

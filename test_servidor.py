@@ -114,7 +114,7 @@ def test_update_imoveis(mock_connect_db, client):
         1, 'Nicole Common', 'Rua', 'Lake Danielle', 'Judymouth', '85184', 'casa em condominio', 488423.52, '2017-07-29'
     )
     mock_connect_db.return_value = mock_conn
-    data = {
+    dados = {
         "logradouro": "Nicole Common",
         "tipo_logradouro": "Rua",
         "bairro": "Lake Danielle",
@@ -124,7 +124,7 @@ def test_update_imoveis(mock_connect_db, client):
         "valor": 488423.52,
         "data_aquisicao": "2017-07-29"
     }
-    response = client.put("/imoveis/1/update", json=data)
+    response = client.put("/imoveis/1/update", json=dados)
     assert response.status_code == 200
     expected_response = {
         "id": 1,
