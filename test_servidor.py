@@ -10,6 +10,7 @@ def client():
     with app.test_client() as client:
         yield client
 
+
 @patch("servidor.connect_db")
 def test_get_imoveis(mock_connect_db, client):
     """Testa a rota /imoveis sem acessar o banco de dados real."""
@@ -20,6 +21,7 @@ def test_get_imoveis(mock_connect_db, client):
 
     
     mock_conn.cursor.return_value = mock_cursor
+    mock_connect_db.return_value = mock_conn
 
     # Retorno banco de dados com todos os imoveis
     mock_cursor.fetchall.return_value = [
@@ -27,8 +29,6 @@ def test_get_imoveis(mock_connect_db, client):
         (2, 'Price Prairie', 'Travessa', 'Colonton', 'North Garyville', '93354', 'casa em condominio', 260069.89, '2021-11-30'),
     ]
 
-    # Substituímos a função `connect_db` para retornar nosso Mock em vez de uma conexão real
-    mock_connect_db.return_value = mock_conn
 
     # Fazemos a requisição para a API
     response = client.get("/imoveis")
@@ -147,9 +147,6 @@ def test_delete_imoveis(mock_connect_db, client):
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
-    mock_cursor.fetchone.return_value = (
-        1, 'Nicole Common', 'Travessa', 'Lake Danielle', 'Judymouth', '85184', 'casa em condominio', 488423.52, '2017-07-29'
-    )
 
     mock_connect_db.return_value = mock_conn
     response = client.delete("/imoveis/1/delete")
@@ -168,17 +165,15 @@ def test_get_imoveis_tipo(mock_connect_db, client):
     mock_conn.cursor.return_value = mock_cursor
 
     mock_cursor.fetchall.return_value = [
-        (1, 'Nicole Common', 'Travessa', 'Lake Danielle', 'Judymouth', '85184', 'casa em condominio', 488423.52, '2017-07-29'),
         (8, 'Richard Light', 'Travessa', 'New Rebeccaview', 'Benjaminberg', '64598', 'terreno', 684707.4, '2022-10-27')
     ]
 
     mock_connect_db.return_value = mock_conn
-    response = client.get("/imoveis/tipo")
+    response = client.get("/imoveis/tipo/terreno")
     assert response.status_code == 200
     
     expected_response = {
         "imoveis": [
-            {'id': 1, "logradouro": 'Nicole Common', "tipo_logradouro": "Travessa", "bairro": "Lake Danielle", "cidade": "Judymouth", "cep": "85184", "tipo": "casa em condominio", "valor": 488423.52, "data_aquisicao": "2017-07-29"},
             {'id': 8, "logradouro": 'Richard Light', "tipo_logradouro": "Travessa", "bairro": "New Rebeccaview", "cidade": "Benjaminberg", "cep": "64598", "tipo": "terreno", "valor": 684707.4, "data_aquisicao": "2022-10-27"},
         ]
     }
@@ -194,9 +189,7 @@ def test_get_imoveis_cidade(mock_connect_db, client):
     mock_conn.cursor.return_value = mock_cursor
 
     mock_cursor.fetchall.return_value = [
-        # (1, 'Nicole Common', 'Travessa', 'Lake Danielle', 'Judymouth', '85184', 'casa em condominio', 488423.52, '2017-07-29'),
         (6, 'Preston Terrace', 'Rua', 'North Lindseyview', 'Lake Michael', '99549', 'terreno', 946804.25, '2023-12-13'),
-        # (8, 'Richard Light', 'Travessa', 'New Rebeccaview', 'Benjaminberg', '64598', 'terreno', 684707.4, '2022-10-27'),
         (50, 'Lori Summit', 'Travessa', 'Kristaside', 'Lake Michael', '24473', 'casa', 498926.13, '2019-02-27')
     ]
 
